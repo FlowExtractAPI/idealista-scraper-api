@@ -1,6 +1,6 @@
 # 🏠 Idealista API Scraper
 
-Fast, reliable property scraper for **Idealista.com**, **Idealista.pt**, and **Idealista.it** . Optimized for speed and accuracy with multi-country support.
+Fast, reliable property scraper for **Idealista.com** (Spain), **Idealista.pt** (Portugal), **Idealista.it** (Italy) and **Idealista.fr** (France). Optimized for speed and accuracy with multi-country support.
 
 **Supports every Idealista search URL type  single property, listing/search, multi-area, hand-drawn map regions, and map-pin point searches.**
 
@@ -66,14 +66,15 @@ Complete property intelligence from Idealista listings:
 * **Energy Performance**: Energy efficiency when available
 
 ### ⚡ Advanced Features
-* **Multi-country Support**: Spain (.com), Portugal (.pt), Italy (.it)
+* **Multi-country Support**: Spain (.com), Portugal (.pt), Italy (.it), France (.fr)
 * **Map-Area Search**: Scrape any custom region drawn on Idealista's map
 * **Multi-Area Search**: Scrape several selected zones/neighbourhoods in one run
 * **Point / Map-Pin Search**: Scrape the area around a map-pin location URL
-* **Auto Language Detection**: Extracts language from URL
-* **Auto Country Routing**: Detects correct API endpoint
+* **Agency Pages**: Scrape every listing of an agency from its Idealista page
+* **Auto Language Detection**: Results follow the language of your URL
+* **Auto Country Detection**: Paste URLs from any supported country — no setting needed
 * **Mixed URL Support**: Property URLs and listing/search URLs in one request
-* **Listing URL Parsing**: Automatic search payload generation
+* **Filters Respected**: Price, size, type and every other filter in your URL is applied
 * **Configurable Results**: Control max properties per listing URL
 * **Error Tracking**: Failed items with detailed error messages
 * **Pagination Support**: Multi-page property collection
@@ -89,6 +90,7 @@ Extract data from a single property page:
 * `https://www.idealista.com/en/inmueble/82100417/`
 * `https://www.idealista.pt/fr/imovel/33939171/`
 * `https://www.idealista.it/it/immobile/34613312/`
+* `https://www.idealista.fr/en/immeuble/174279/`
 
 ### Listing/Search URLs
 Scrape multiple properties from a search results page:
@@ -96,6 +98,12 @@ Scrape multiple properties from a search results page:
 * `https://www.idealista.com/en/venta-viviendas/balears-illes/?ordenado-por=precios-asc`
 * `https://www.idealista.pt/fr/comprar-casas/nordeste/achadinha/`
 * `https://www.idealista.it/pt/vendita-case/alice-castello-vercelli/`
+* `https://www.idealista.fr/en/achat-logement/paris-paris-75/`
+
+### Agency URLs
+Scrape the listings of one agency, with or without a location:
+
+* `https://www.idealista.fr/en/pro/liberkeys/achat-logement/`
 
 The actor automatically detects which type of URL you provide and handles each accordingly.
 
@@ -105,8 +113,9 @@ The actor automatically detects which type of URL you provide and handles each a
 Scrape every property inside a custom area you draw on Idealista's map:
 
 * `https://www.idealista.it/it/aree/vendita-case/.../lista-mappa?shape=...`
+* `https://www.idealista.fr/en/aires/location-local/.../carte-google?shape=...`
 
-Draw any region on Idealista's map search, copy the URL, and paste it in  the actor scrapes all matching properties within that exact area. Works across Spain, Portugal, and Italy.
+Draw any region on Idealista's map search, copy the URL, and paste it in  the actor scrapes all matching properties within that exact area. Works across Spain, Portugal, Italy and France.
 
 ---
 
@@ -116,6 +125,7 @@ Scrape across several neighbourhoods or zones selected together in one search:
 * `https://www.idealista.com/en/multi/alquiler-viviendas/.../`
 * `https://www.idealista.pt/es/multi/comprar-casas/.../`
 * `https://www.idealista.it/multi/vendita-case/.../`
+* `https://www.idealista.fr/en/multi/location-bureaux/akL,bXZ/`
 
 Select multiple zones on Idealista, copy the URL, and paste it in  the actor scrapes properties from all selected zones in a single run.
 
@@ -293,6 +303,25 @@ Same format, sent as POST body to the standby endpoint.
 
 ---
 
+## ❓ Why did my run return no properties?
+
+Every run ends with a short **status message** (shown at the top of the run in the Console) that says how many results were saved and whether anything needs your attention.
+
+* **"N search(es) matched no properties right now"**  the search worked, Idealista simply has no listings matching it at the moment (common with filters such as *published in the last 24 hours*). Nothing is wrong  try wider filters or run it again later.
+* **"N URL(s) could not be searched as given"**  the dataset contains a row with `"status": "failed"` and an `error` field explaining how to fix that URL. These rows are not billed.
+* **"Some requests to Idealista failed after several retries"**  a temporary connection problem; run it again.
+
+**The easiest way to get a working URL:** run your search on Idealista (location, filters, map area), then copy the URL straight from the browser's address bar. If you build URLs yourself, the filter part of the URL must start with Idealista's filter prefix:
+
+| Site | Filter prefix | Example |
+|------|---------------|---------|
+| idealista.com (Spain) | `con-` | `/alquiler-viviendas/madrid-madrid/con-precio-hasta_1500/` |
+| idealista.it (Italy) | `con-` | `/vendita-case/roma-roma/con-prezzo_300000/` |
+| idealista.pt (Portugal) | `com-` | `/comprar-casas/lisboa/com-preco-max_300000/` |
+| idealista.fr (France) | `avec-` | `/location-bureaux/dordogne-24/avec-surface-m2-min_40/` |
+
+---
+
 ## 🔐 Authentication & Proxy
 
 ### **Proxy Configuration**
@@ -363,24 +392,24 @@ curl -X POST "https://dz-omar--idealista-scraper-api.apify.actor?token=YOUR_APIF
 | **Typical Response Time** | 5-15 seconds per property |
 | **Standby Startup** | 0 seconds (pre-loaded) |
 | **API Success Rate** | 99%+ |
-| **Retry Coverage** | 3 automatic attempts |
+| **Retry Coverage** | Automatic retries on temporary errors |
 | **Memory Usage** | 128-512 MB configurable |
 | **Concurrent Requests** | Full rate limit support |
 
 ---
 
-## 🏗️ Architecture Highlights
+## 🏗️ Highlights
 
-### **STANDBY Mode Implementation:**
-- Express.js HTTP server
+### **STANDBY Mode:**
+- Always-on HTTP endpoint
 - NDJSON streaming responses
 - Mixed URL handling (property + listing)
 - Real-time progress updates
 - Graceful error handling
 - Automatic batch processing
 
-### **Listing URL Processing:**
-- Automatic URL → search payload conversion
+### **Listing URLs:**
+- Paste the URL exactly as Idealista shows it
 - Automatic pagination with configurable limits
 - Batch streaming in STANDBY mode
 
@@ -398,6 +427,8 @@ curl -X POST "https://dz-omar--idealista-scraper-api.apify.actor?token=YOUR_APIF
 | Status | Meaning | Action |
 |--------|---------|--------|
 | **success** | Property extracted successfully | Use data |
+| **deactivated** | The listing was removed from Idealista; its last known details are included | Use or skip |
+| **not_found** | No listing exists with this ID | Check the URL |
 | **failed** | Extraction failed | Check error message |
 | **migrating** | Server is migrating | Retry request |
 | **aborting** | Server shutting down | Restart actor |
@@ -413,23 +444,6 @@ curl -X POST "https://dz-omar--idealista-scraper-api.apify.actor?token=YOUR_APIF
 5. **Monitor error view** - Catch issues early
 
 ---
-
-## 🤝 Support & Resources
-
-## 📞 Support
-
-### Get Help
-
-- 🌐 **Website**: [flowextractapi.com](https://flowextractapi.com)
-- 📧 **Email**: [flowextractapi@outlook.com](mailto:flowextractapi@outlook.com)
-- 🙋 **Apify Profile**: [FlowExtract API](https://apify.com/dz_omar?fpr=smcx63)
-- 💬 **GitHub Issues**: [FlowExtractAPI](https://github.com/FlowExtractAPI)
-
-### Social Media
-
-- 💼 **LinkedIn**: [flowextract-api](https://www.linkedin.com/in/flowextract-api/)
-- 🐦 **Twitter**: [@FlowExtractAPI](https://x.com/FlowExtractAPI)
-- 📱 **Facebook**: [flowextractapi](https://www.facebook.com/flowextractapi)
 
 ## 🌟 Related Actors by FlowExtract API
 
@@ -457,10 +471,24 @@ curl -X POST "https://dz-omar--idealista-scraper-api.apify.actor?token=YOUR_APIF
 
 ---
 
-### **⚖️ Legal & Compliance**
-- **Public Data Access**: Only processes publicly available data
-- **Rate Limiting**: Respects service limits and terms of use
-- **Data Protection**: No storage of personal information or unauthorized data collection
-- **Commercial Use**: Suitable for business intelligence and research applications
+## Support
+
+- 🌐 **Website:** [flowextractapi.com](https://flowextractapi.com)
+- 📧 **Email:** [flowextractapi@outlook.com](mailto:flowextractapi@outlook.com)
+- 💬 **GitHub:** [FlowExtractAPI](https://github.com/FlowExtractAPI)
+- 💼 **LinkedIn:** [flowextract-api](https://www.linkedin.com/in/flowextract-api/)
+- 🐦 **X (Twitter):** [@FlowExtractAPI](https://x.com/FlowExtractAPI)
+- 📱 **Facebook:** [flowextractapi](https://www.facebook.com/flowextractapi)
+- 🎵 **TikTok:** [@flowextractapi](https://www.tiktok.com/@flowextractapi)
+
+## Legal & compliance
+
+- **Public data only** — processes publicly available data.
+- **Rate limiting** — respects source-service limits and terms of use.
+- **Data protection** — no storage of personal information or unauthorized data collection.
+- **Commercial use** — suitable for business intelligence and research.
+- No affiliation with or endorsement by Idealista is implied.
 
 ---
+
+*Idealista Scraper API — by FlowExtract API. Turn any website into structured data.*
