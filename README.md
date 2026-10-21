@@ -208,7 +208,7 @@ curl -X POST https://dz-omar--idealista-scraper-api.apify.actor/ \
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | **Property_urls** | array | ✅ Yes |  | Array of property or listing URLs |
-| **detailMode** | boolean | No | false | 🔎 **Fetch full property details.** When ON, every property from a listing/search URL is enriched with its full detail data (all images, complete multilingual descriptions, agent contacts, energy certification) via an extra request per property — slower and richer. When OFF (default), results use the lighter data from search results — faster and cheaper. Detailed results are billed at a higher per-property rate (see pricing). Individual property URLs always return full details regardless of this setting. |
+| **detailMode** | boolean | No | false | 🔎 **Fetch full property details.** When ON, every property from a listing/search URL is enriched with its full detail data (all images, complete multilingual descriptions, agent contacts, energy certification) via an extra request per property — slower and richer. When OFF (default), results use the lighter data from search results — faster and cheaper. Detailed results are billed at a higher per-property rate (see pricing). Individual property URLs always return full details and are billed at the detailed rate, regardless of this setting. |
 | **desiredResults** | integer | No | 10 | Max properties per listing URL. Set it high (thousands) on a large area to collect deep, de-duplicated coverage; set it low for a quick sample. |
 
 ### **Example Input (Mixed URLs):**
