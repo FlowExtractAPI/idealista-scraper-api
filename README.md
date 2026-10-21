@@ -208,7 +208,7 @@ curl -X POST https://dz-omar--idealista-scraper-api.apify.actor/ \
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | **Property_urls** | array | ✅ Yes |  | Array of property or listing URLs |
-| **detailMode** | boolean | No | false | 🔎 **Fetch full property details.** When ON, every property from a listing/search URL is enriched with its full detail data (all images, complete multilingual descriptions, agent contacts, energy certification) via an extra request per property — slower and richer. When OFF (default), results use the lighter data from search results — faster and cheaper. Detailed results are billed at a higher per-property rate (see pricing). Individual property URLs always return full details and are billed at the detailed rate, regardless of this setting. |
+| **detailMode** | boolean | No | false | 🔎 **Fetch full property details.** When ON, every property from a listing/search URL is returned as a full detail record (all images, complete multilingual descriptions, agent contacts, energy certification) — slower and richer, billed at the detailed rate. When OFF (default), listing/search results come with the data available in search results — faster, billed at the standard rate. Individual property URLs always return the full detail record and are billed at the detailed rate, whatever this setting. |
 | **desiredResults** | integer | No | 10 | Max properties per listing URL. Set it high (thousands) on a large area to collect deep, de-duplicated coverage; set it low for a quick sample. |
 
 ### **Example Input (Mixed URLs):**
@@ -228,6 +228,18 @@ curl -X POST https://dz-omar--idealista-scraper-api.apify.actor/ \
 - The listing URL (`/venta-viviendas/...`) returns up to `desiredResults` (11) properties
 - Each property URL (`/inmueble/`, `/imovel/`, `/immobile/`) returns exactly 1 property
 - **Total output**: up to 14 properties (11 + 3)
+
+### **💰 How results are billed**
+
+You pay per result, and the rate follows the record you receive (see the Pricing tab for amounts):
+
+| What you get | Rate |
+|---|---|
+| A property from a listing/search URL, **Fetch full property details OFF** | Standard |
+| A property from a listing/search URL, **Fetch full property details ON** | Detailed |
+| An **individual property URL** (always the full detail record) | Detailed |
+| A listing result whose full details could not be retrieved (returned with search-result data) | Standard |
+| A removed listing, an unknown property ID, or a URL that could not be searched | Not billed |
 
 ### **STANDBY Mode Input:**
 Same format, sent as POST body to the standby endpoint.
